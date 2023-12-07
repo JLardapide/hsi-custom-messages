@@ -1,8 +1,9 @@
 [
-  {
-    "slot": "HOME_MENU",
-    "title": "Releases de HSI",
-    "componentName": "hsi-releases",
-    "url": "./main.js"
-  }
-]
+    {
+      "slot": "CLINIC_HISTORY_TAB",
+      "title": "Eventos",
+      "componentName": "my-extension",
+      "url": "./main.js?v=7"
+    }
+  ]
+  

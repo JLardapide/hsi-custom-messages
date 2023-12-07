@@ -1,58 +1,61 @@
 (function (customElements) {
-  const STYLES = `
-  <style>
-    .web-component iframe {
-      border: 0;
-      width: 100%;
-      height: 100%;
-      min-height: 16000px;
-    }
-  </style>`;
 
-  const addEventListenerToIframe = (iframe) => {
-    iframe.addEventListener('load', function (event) {
-      console.log('El iframe se ha cargado correctamente.', event);
-      const newSrc = event.target.getAttribute('src');
-      console.log('El atributo src del iframe ha cambiado a:', newSrc);
-      // Aquí puedes realizar acciones adicionales una vez que el iframe se haya cargado
-      // Acceder al contenido del iframe una vez que se ha cargado
-    });
+    const createTemplate = () => {
 
-    // Añade un listener para el evento 'error' del iframe
-    iframe.addEventListener('error', function (event) {
-      console.log('Ha ocurrido un error al cargar el iframe:', event);
-      // Puedes manejar el error o realizar acciones adicionales en caso de que falle la carga del iframe
-    });
-
-  };
-
-  const createTemplate = ({
-    iframeSrc,
-  }) => {
-    const template = document.createElement('template');
-    template.innerHTML = `
-          ${STYLES}
+        const template = document.createElement('template');
+        template.innerHTML = `
           <div class="web-component">
-            <iframe src="${iframeSrc}"></iframe>
+            <h1>Mensajes a enviar a HSI</h1>
+            <button id="goToPatientButton">VER PACIENTE</button>
+            <button id="goToClinicHistory">VER HISTORIA CLINICA</button>
+            <button id="denyLogout">BLOQUEAR LOGOUT</button>
+            <button id="allowLogout">PERMITIR LOGOUT</button>
           </div>
       `;
 
-    return template;
-  };
+        return template;
+    };
 
-  class HSIReleases extends HTMLElement {
-    connectedCallback() {
-      const template = createTemplate({
-        iframeSrc: 'https://hsi.pladema.net/blog/',
-      });
-      this.attachShadow({ mode: 'open' });
-      this.shadowRoot.appendChild(template.content.cloneNode(true));
+    class MyExtension extends HTMLElement {
 
-      const iframe = this.shadowRoot.querySelector('iframe');
-      addEventListenerToIframe(iframe);
+        connectedCallback() {
+            const template = createTemplate();
+            this.attachShadow({ mode: 'open' });
+            this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+            const goToPatientButton = this.shadowRoot.getElementById('goToPatientButton');
+            goToPatientButton.addEventListener('click', this.goToPatient.bind(this));
+
+            const goToClinicHistory = this.shadowRoot.getElementById('goToClinicHistory');
+            goToClinicHistory.addEventListener('click', this.goToClinicHistory.bind(this));
+
+            const denyLogout = this.shadowRoot.getElementById('denyLogout');
+            denyLogout.addEventListener('click', this.denyLogout.bind(this));
+
+            const allowLogout = this.shadowRoot.getElementById('allowLogout');
+            allowLogout.addEventListener('click', this.allowLogout.bind(this));
+        }
+
+        goToPatient() {
+            postMessage({ patientId: 10, action: 'navigate_to_patient_profile' });
+        }
+
+        goToClinicHistory() {
+            postMessage({ patientId: 10, action: 'navigate_to_clinic_history' });
+        }
+
+        denyLogout() {
+            postMessage({ patientId: false, action: 'available_to_logout' });
+        }
+
+        allowLogout() {
+            postMessage({ availableToLogOut: true, action: 'available_to_logout' });
+        }
+
+
     }
-  }
 
-  // define el web-component
-  customElements.define('hsi-releases', HSIReleases);
+    // define el web-component
+    customElements.define('my-extension', MyExtension);
+
 })(window.customElements);
